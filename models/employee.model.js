@@ -6,7 +6,7 @@ const employeeSchema = new mongoose.Schema({
   phone: { type: String },
   department: { type: String, required: true },
   salary: { type: Number, required: true },
-  status: { type: String, default: "ACTIVE" },
+  status: { type: String,enum: ["ACTIVE","INACTIVE"], default: "ACTIVE" },
 },
  { timestamps:true }
 );

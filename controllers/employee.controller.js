@@ -11,13 +11,12 @@ exports.createEmployee = async (req, res, next) => {
 
 exports.getEmployees = async (req, res, next) => {
   try {
-    const employees = await service.getAllEmployees();
-    res.json(employees);
+    const employee = await service.getAllEmployees(req.query);
+    res.json(employee);
   } catch (err) {
     next(err);
   }
 };
-
 exports.getEmployee = async (req, res, next) => {
   try {
     const employee = await service.getEmployeeById(req.params.id);
