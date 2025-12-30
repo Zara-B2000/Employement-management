@@ -37,8 +37,19 @@ exports.updateEmployee = async (req, res, next) => {
 
 exports.deleteEmployee = async (req, res, next) => {
   try {
-    await service.deleteEmployee(req.params.id);
-    res.json({ message: "Employee deleted" });
+    const { id } = req.params;
+
+    const deletedEmployee = await service.deleteEmployee(id);
+
+    if (!deletedEmployee) {
+      return res.status(404).json({
+        message: "Employee not found",
+      });
+    }
+
+    res.json({
+      message: "Employee deleted",
+    });
   } catch (err) {
     next(err);
   }
