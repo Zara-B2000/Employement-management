@@ -1,15 +1,8 @@
-const mongoose = require("mongoose");
+const { createClient } = require("@supabase/supabase-js");
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(
-      "mongodb://localhost:27017/Employee"
-    );
-    console.log("MongoDB Connected Successfully");
-  } catch (error) {
-    console.error("MongoDB Connection Error:", error.message);
-    process.exit(1);
-  }
-};
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SECRET_KEY
+);
 
-module.exports = connectDB;
+module.exports = supabase;

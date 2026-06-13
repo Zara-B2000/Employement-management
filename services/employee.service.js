@@ -1,24 +1,65 @@
-const Employee = require("../models/employee.model");
+const supabase = require("../config/db");
 
-const createEmployee = (data) => Employee.create(data);
+const createEmployee = async (data) => {
+  const { data: employee, error } = await supabase
+    .from("employees")
+    .insert([{ ...data, updatedAt: new Date() }])
+    .select()
+    .single();
+  if (error) throw error;
+  return employee;
+};
+
 const getAllEmployees = async (query = {}) => {
   const { page, limit, department, firstName } = query;
 
-  const filter = {};
-  if (department) filter.department = department;
-  if (firstName) filter.firstName = new RegExp(firstName, "i");
+  let q = supabase.from("employees").select("*");
 
-  let queryExec = Employee.find(filter);
+  if (department) q = q.eq("department", department);
+  if (firstName) q = q.ilike("firstName", `%${firstName}%`);
+
   if (page && limit) {
-    queryExec = queryExec.skip((page - 1) * limit).limit(Number(limit));
+    const from = (page - 1) * limit;
+    const to = from + Number(limit) - 1;
+    q = q.range(from, to);
   }
 
-  return await queryExec;
+  const { data, error } = await q;
+  if (error) throw error;
+  return data;
 };
-const getEmployeeById = (id) => Employee.findById(id);
-const updateEmployee = (id, data) =>
-  Employee.findByIdAndUpdate(id, data, { new: true });
-const deleteEmployee = (id) => Employee.findByIdAndDelete(id);
+
+const getEmployeeById = async (id) => {
+  const { data, error } = await supabase
+    .from("employees")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+};
+
+const updateEmployee = async (id, data) => {
+  const { data: employee, error } = await supabase
+    .from("employees")
+    .update({ ...data, updatedAt: new Date() })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return employee;
+};
+
+const deleteEmployee = async (id) => {
+  const { data, error } = await supabase
+    .from("employees")
+    .delete()
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+};
 
 module.exports = {
   createEmployee,

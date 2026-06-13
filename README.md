@@ -1,6 +1,6 @@
 # Employee Management CRUD API
 
-A RESTful API for managing employees using Node.js, Express, and MongoDB.
+A RESTful API for managing employees using Node.js, Express, and Supabase (Postgres).
 
 ## Installation
 
@@ -10,9 +10,33 @@ A RESTful API for managing employees using Node.js, Express, and MongoDB.
 npm install
 ```
 
-3. Make sure MongoDB is running on your computer
+3. Create a `.env` file in the project root with your Supabase project credentials:
+```
+SUPABASE_URL=https://<your-project-ref>.supabase.co
+SUPABASE_SECRET_KEY=<your-service-role-secret-key>
+```
 
-4. Start the server:
+4. In the Supabase SQL Editor, create the `employees` table:
+```sql
+create table employees (
+  id bigint generated always as identity primary key,
+  "firstName" text not null,
+  "lastName" text not null,
+  email text not null unique,
+  phone text,
+  department text not null,
+  salary numeric not null,
+  status text not null default 'ACTIVE' check (status in ('ACTIVE', 'INACTIVE')),
+  "createdAt" timestamptz not null default now(),
+  "updatedAt" timestamptz not null default now()
+);
+```
+
+5. Start the server:
+```bash
+npm start
+```
+Or in development mode with auto-restart:
 ```bash
 npm run dev
 ```
@@ -43,11 +67,12 @@ Server will run on: `http://localhost:3000`
 **Optional Query Parameters:**
 - `?department=IT` - Filter by department
 - `?firstName=John` - Search by first name
+- `?page=1&limit=10` - Paginate results (both must be provided together)
 
 ### Get Employee by ID
 **GET** `/employees/:id`
 
-**Example:** `/employees/65abc123def456789`
+**Example:** `/employees/1`
 
 ### Update Employee
 **PUT** `/employees/:id`
@@ -76,16 +101,17 @@ Server will run on: `http://localhost:3000`
 ```
 employee-api/
 ├── config/
-│   └── db.js                 # Database configuration
+│   └── db.js                 # Supabase client configuration
 ├── controllers/
 │   └── employee.controller.js # Business logic
-├── models/
-│   └── employee.model.js      # Employee schema
+├── services/
+│   └── employee.service.js    # Supabase queries
 ├── routes/
 │   └── employee.routes.js     # API routes
 ├── middlewares/
 │   └── errorHandler.js        # Error handling
 ├── server.js                  # Main application file
+├── vercel.json                # Vercel deployment config
 ├── package.json               # Dependencies
 └── README.md                  # Documentation
 ```
@@ -94,5 +120,5 @@ employee-api/
 
 - **Node.js** - JavaScript runtime
 - **Express** - Web framework
-- **MongoDB** - Database
-- **Mongoose** - MongoDB object modeling
+- **Supabase** - Postgres database & client
+- **dotenv** - Environment variable loading
